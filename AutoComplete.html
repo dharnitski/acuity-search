@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="http://cdn.jsdelivr.net/jquery/2.1.1/jquery.min.js"></script>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/hogan.js/2.0.0/hogan.js"></script>
+
+    <script src="http://cdn.jsdelivr.net/algoliasearch/2.5.2/algoliasearch.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.2/typeahead.bundle.min.js"></script>
+
+
+    <style type="text/css">
+        .demo {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .typeahead, .tt-query, .tt-hint {
+            width: 500px;
+            padding: 8px 12px;
+            font-size: 24px;
+            border: 2px solid #ccc;
+            outline: none;
+            margin: 0px;
+        }
+
+        .typeahead {
+            background-color: #fff;
+        }
+
+            .typeahead:focus {
+                border: 2px solid #0097cf;
+            }
+
+        .tt-query {
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        }
+
+        .tt-hint {
+            color: #999;
+        }
+
+        .tt-dropdown-menu {
+            width: 100%;
+            padding: 8px 0;
+            background-color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-top: 0px;
+            -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+            -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+            box-shadow: 0 5px 10px rgba(0,0,0,.2);
+        }
+
+        .tt-suggestion {
+            text-align: left;
+            padding: 3px 20px;
+            font-size: 18px;
+            line-height: 24px;
+        }
+
+            .tt-suggestion.tt-cursor {
+                color: #fff;
+                background-color: #0097cf;
+            }
+
+            .tt-suggestion p {
+                margin: 0;
+            }
+
+            .tt-suggestion a {
+                color: #000;
+                text-decoration: none;
+            }
+
+            .tt-suggestion em {
+                font-weight: bold;
+                font-style: normal;
+            }
+
+        .product-info {
+            float: left;
+            margin-left: 6px;
+        }
+
+        .product-text {
+            float: left;
+        }
+
+        .text-right {
+            float: right;
+        }
+
+        .clear {
+            clear: both;
+        }
+    </style>
+
+</head>
+<body>
+    <!--<div class="demo">
+            <h3>Basic</h3>
+            <input class="typeahead" type="text" placeholder="Start typing" id="typeahead-algolia" spellcheck="false" />
+        </div>-->
+
+    <div class="demo">
+        <h3>Product Search</h3>
+        <input class="typeahead" type="text" placeholder="Start typing" id="typeahead-algolia-template" spellcheck="false" />
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Replace the following values by your ApplicationID and ApiKey.
+            var algolia = new AlgoliaSearch('3Q92VD0BCR', '6d4bee3fdf81d8f259894a63e9d82b28');
+            // replace YourIndexName by the name of the index you want to query.
+            var index = algolia.initIndex('acuity');
+
+            // basic typeahead
+            $('#typeahead-algolia').typeahead(null, {
+                source: index.ttAdapter(),
+                displayKey: 'Title'
+            });
+
+            // with a template and highlighting
+            var template = Hogan.compile('' +
+                '<div style="float:left;"><picture><img src="{{{Image}}}?w=100&h=100&bc=white" height="100" width="100"/></picture></div>' +
+                '<div class="text-right"><small>{{{_highlightResult.Brand Name.value}}}</small></div>' +
+                '<div class="product-info">' +
+                '<div style="float:left;">{{{_highlightResult.Title.value}}}</div>' +
+                '<div class="clear"></div>' +
+                '<div>{{{_highlightResult.Description.value}}}</div>' +
+                '<div>{{{_highlightResult.Category.value}}}</div>' +
+                //product type can be value
+                //'<div>{{{_highlightResult.Product Type.value}}}</div>' +
+                //or product type can be an array
+
+                '{{#_highlightResult.Product Type}}<div>{{{value}}}</div>{{/_highlightResult.Product Type}}' +
+
+
+//                {{#employees}}
+//            {{firstName}} {{lastName}}
+//        {{^last}}
+//    <hr />
+//  {{/last}}
+//{{/employees}}
+
+
+                    '</div>' +
+                    '<div class="clear"></div>'
+                    );
+        $('#typeahead-algolia-template').typeahead(null, {
+            source: index.ttAdapter({ hitsPerPage: 10 }),
+            displayKey: 'Title',
+            //onselect: function (obj) {
+            //    window.location.href = obj.Url;
+            //},
+            //select: function(event, ui) {
+            //    window.location.href = obj.Url;
+            //},
+            templates: {
+                suggestion: function(hit) {
+                    return template.render(hit);
+                }
+            }
+        });
+        });
+    </script>
+</body>
+</html>
