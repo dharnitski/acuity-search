@@ -113,11 +113,27 @@
     </div>
 
     <script type="text/javascript">
+
+        $.QueryString = (function (a) {
+            if (a == "") return {};
+            var b = {};
+            for (var i = 0; i < a.length; ++i) {
+                var p = a[i].split('=');
+                if (p.length != 2) continue;
+                b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+            }
+            return b;
+        })(window.location.search.substr(1).split('&'));
+
         $(document).ready(function () {
             // Replace the following values by your ApplicationID and ApiKey.
             var algolia = new AlgoliaSearch('C2VDC0GIMY', 'e48eb8b970edda6d32e93613dc0a9a97');
             // replace YourIndexName by the name of the index you want to query.
-            var index = algolia.initIndex('acuity');
+            var indexName = $.QueryString.index;
+            if (!indexName)
+                indexName = 'acuity';
+
+            var index = algolia.initIndex(indexName);
 
             // basic typeahead
             $('#typeahead-algolia').typeahead(null, {
