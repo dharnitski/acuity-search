@@ -207,6 +207,7 @@
                     </div>
                 </form>
             </div>
+            <div id="results-count"></div>
         </header>
     </section>
 
@@ -275,8 +276,15 @@
                     // no results
                     $('#hits').empty();
                     $('#facets').empty();
+                    $('#results-count').empty();
                     return;
                 }
+
+
+                
+                var resultsCount = content.nbHits
+
+                $('#results-count').html('results: ' + resultsCount);
 
                 // Scan all hits and display them
                 var hits = '';
