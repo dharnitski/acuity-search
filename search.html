@@ -142,11 +142,22 @@
         }
 
         .hits-wrapper {
+            float: left;
             width: 80%;
         }
 
         #hits {
             padding: 5px 0px;
+        }
+
+        .hit-attributes{
+             float: left;
+            width: 80%;
+        }
+
+         .hit-ranking{
+             float: right;
+            width: 20%;
         }
 
         .hit {
@@ -175,6 +186,10 @@
 
         li.refined {
             font-weight: bold;
+        }
+
+        div.clear {
+            clear: both;
         }
 
         @media (max-width: 500px) {
@@ -264,7 +279,12 @@
                         filters.push(refinement);
                     }
                 }
-                index.search($inputfield.val(), searchCallback, { facets: '*', facetFilters: filters });
+                index.search($inputfield.val(), searchCallback,
+                    {
+                        facets: '*',
+                        facetFilters: filters,
+                        getRankingInfo: 1
+                    });
             }
 
             function searchCallback(success, content) {
@@ -280,8 +300,6 @@
                     return;
                 }
 
-
-                
                 var resultsCount = content.nbHits
 
                 $('#results-count').html('results: ' + resultsCount);
@@ -294,7 +312,7 @@
 
                     // For this hit, display all property that have a least one word highlighted (matchLevel = full or partial)
                     hits += '<div class="hit">';
-                    hits += '<picture><img src="' + hit.Image + '?w=100&h=100&bc=white" height="100" width="100"/></picture>';
+                    hits += '<div class="hit-attributes"><picture><img src="' + hit.Image + '?w=100&h=100&bc=white" height="100" width="100"/></picture>';
                     hits += '<big>' + hit._highlightResult.Title.value + '</big>';
 
                     highlighted = [];
@@ -304,7 +322,7 @@
 
                         var el = hit._highlightResult[propertyName];
 
-                        //Highlight result can be an array 
+                        //Highlight result can be an array
                         //need to use right element of array in that case
                         if ($.isArray(el)) {
                             for (id in el) {
@@ -325,7 +343,7 @@
                         }
                     }
 
-                    //show all the fields 
+                    //show all the fields
                     for (propertyName in hit) {
                         el = hit[propertyName];
                         if (dynamicFieldsExclude.indexOf(propertyName) == -1
@@ -336,7 +354,14 @@
                         }
                     }
 
-                    hits += '</div>';
+                    //ranking info
+                    hits += '</div><div class="hit-ranking">';
+                    hits += '<div>User Score: ' + hit._rankingInfo.userScore + '</div>';
+                    hits += '<div>Number of Typos: ' + hit._rankingInfo.nbTypos + '</div>';
+                    hits += '<div>First Matched Word: ' + hit._rankingInfo.firstMatchedWord + '</div>';
+                    hits += '<div>Proximity Distance: ' + hit._rankingInfo.proximityDistance + '</div>';
+                    hits += '<div>Number Exact Words: ' + hit._rankingInfo.nbExactWords + '</div>';
+                    hits += '</div><div class="clear"><hr></div></div>';
                 }
                 $('#hits').html(hits);
 
